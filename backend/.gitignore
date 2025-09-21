@@ -1,0 +1,66 @@
+# =======================
+# Python bytecode
+# =======================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =======================
+# Python virtual environments
+# =======================
+.venv/
+venv/
+env/
+.env/
+.pdm-python/
+.venv/
+env/
+
+# =======================
+# Logs, coverage, reports
+# =======================
+*.log
+*.log.*
+.coverage
+coverage.xml
+htmlcov/
+pytest_cache/
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+
+# =======================
+# Database files
+# =======================
+*.sqlite3
+*.db
+
+# =======================
+# IDE / Editor files
+# =======================
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# =======================
+# FastAPI / Pydantic caches
+# =======================
+__pydantic_cache__/
+
+# =======================
+# Static / media / uploads
+# =======================
+staticfiles/
+media/
+uploads/
+
+# =======================
+# Misc
+# =======================
+*.swp
+*.swo
+*.bak
+*.tmp
+*.orig

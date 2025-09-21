@@ -1,0 +1,56 @@
+services:
+  classroom_backend:
+    build: .
+    container_name: virtual_classroom_backend
+    env_file:
+      - .env
+    depends_on:
+      - classroom_postgres
+      - classroom_redis
+      - classroom_coturn
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+
+  classroom_postgres:
+    image: postgres:15
+    container_name: classroom_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: virtualclass
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  classroom_redis:
+    image: redis:7
+    container_name: classroom_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  classroom_coturn:
+    image: instrumentisto/coturn:latest
+    container_name: classroom_coturn
+    restart: always
+    command: >
+      --log-file=stdout
+      --realm=yourdomain.com
+      --use-auth-secret
+      --static-auth-secret=turn_secret_key
+      --listening-port=3478
+      --min-port=49160
+      --max-port=49200
+      --no-multicast-peers
+    ports:
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "49160-49200:49160-49200/udp"
+
+volumes:
+  pg_data:
