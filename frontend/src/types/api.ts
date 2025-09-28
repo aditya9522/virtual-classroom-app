@@ -29,10 +29,15 @@ export interface UserResponse extends Token {
   created_at: string;
 }
 
+export interface DeleteItemResponse {
+  message: string;
+}
+
 export interface ClassCreate {
   title: string;
   description?: string | null;
   scheduled_at?: string | null;  // ISO 8601
+  teacher_id?: number | null;
 }
 
 export interface ClassResponse {

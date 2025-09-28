@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { signupThunk } from '../../features/auth/authThunks';
 import { useNavigate } from 'react-router-dom';
 import type { UserCreate } from '../../types/api';
+import { toast } from 'react-toastify';
 
 const schema = yup.object({
   email: yup.string().email().required(),
@@ -21,9 +22,14 @@ const SignupForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const onSubmit = (data: UserCreate) => {
-    dispatch(signupThunk(data) as any);
-    navigate('/');
+  const onSubmit = async (data: UserCreate) => {
+    try {
+      await dispatch(signupThunk(data) as any);
+      toast.success("Account created successfully");
+      navigate('/');
+    } catch (error) {
+      toast.error("Failed to create account");
+    }
   };
 
   return (

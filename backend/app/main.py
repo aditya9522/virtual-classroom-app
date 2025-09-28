@@ -8,12 +8,13 @@ from app.routes.classes import router as classes_router
 from app.routes.messages import router as messages_router
 from app.routes.ws import router as ws_router
 from app.ws.manager import manager as ws_manager
+from app.core.config import settings
 
 app = FastAPI(title='Virtual Classroom Backend')
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

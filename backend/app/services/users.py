@@ -1,7 +1,8 @@
 from sqlmodel import select as sql_select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import Optional
-from app.models.user import User, UserCreate
+from app.models.user import User
+from app.schemas.user import UserCreate
 from app.core.enums import Role
 
 async def create_user(session: AsyncSession, user_in: UserCreate) -> User:

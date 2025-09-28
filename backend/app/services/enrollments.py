@@ -2,7 +2,7 @@ from sqlmodel import select as sql_select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import List, Optional
 from app.models.classroom import Class
-from app.models.enrollment import Enrollment, EnrollmentCreate
+from app.models.enrollment import Enrollment
 
 async def enroll_student(session: AsyncSession, class_id: int, student_id: int) -> Enrollment:
     enrollment = Enrollment(class_id=class_id, student_id=student_id)

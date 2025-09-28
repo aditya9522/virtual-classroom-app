@@ -1,5 +1,5 @@
 import { Container, Paper, Typography } from '@mui/material';
-import LoginForm from '../components/auth/LoginForm';
+import LoginForm from '../../components/auth/LoginForm';
 import { Link } from 'react-router-dom';
 
 const Login = () => {

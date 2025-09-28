@@ -16,7 +16,7 @@ from app.deps import get_current_user
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
-@router.post('/signup', response_model=Token)
+@router.post('/signup', response_model=UserResponse)
 async def signup(user_in: UserCreate, session: AsyncSession = Depends(get_session)):
     existing = await get_user_by_email(session, user_in.email)
     if existing:
@@ -24,8 +24,7 @@ async def signup(user_in: UserCreate, session: AsyncSession = Depends(get_sessio
 
     user_in.password = get_password_hash(user_in.password)
     user = await create_user(session, user_in)
-    access_token = create_access_token(subject=str(user.id))
-    return {'token': access_token, 'token_type': 'bearer'}
+    return user
 
 @router.post('/login', response_model=Token)
 async def login(login_request: LoginRequest, session: AsyncSession = Depends(get_session)):
@@ -89,3 +88,22 @@ async def update_me(
     await session.commit()
     await session.refresh(current_user)
     return current_user
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: int, current_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session),):
+    if current_user.role != Role.ADMIN:
+        raise HTTPException(status_code=403, detail="Not authorized to delete users",)
+
+    result = await session.execute(select(User).where(User.id == user_id))
+    user_to_delete = result.scalars().first()
+
+    if not user_to_delete:
+        raise HTTPException(status_code=404, detail="User not found",)
+
+    if user_to_delete.id == current_user.id:
+        raise HTTPException(status_code=400, detail="You cannot delete your own account",)
+
+    await session.delete(user_to_delete)
+    await session.commit()
+    return {"message": "User deleted successfully"}

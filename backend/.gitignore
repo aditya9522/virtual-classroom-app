@@ -15,6 +15,7 @@ env/
 .pdm-python/
 .venv/
 env/
+.env.production
 
 # =======================
 # Logs, coverage, reports

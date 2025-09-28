@@ -2,7 +2,8 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class EnrollmentCreate(BaseModel):
-    pass
+    class_id: int
+    student_id: int
 
 class EnrollmentResponse(BaseModel):
     id: int

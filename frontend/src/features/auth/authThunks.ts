@@ -1,5 +1,5 @@
 import type { AppDispatch } from '../../store';
-import { setUser, logout, setLoading, setError } from './AuthSlice';
+import { setUser, logout, setLoading, clearError, setError } from './AuthSlice';
 import { login, signup, getMe } from '../../services/api';
 import type { LoginRequest, UserCreate } from '../../types/api';
 
@@ -22,10 +22,10 @@ export const signupThunk = (data: UserCreate) => async (dispatch: AppDispatch) =
   dispatch(setLoading());
   try {
     await signup(data);
-    const user = await getMe();
-    dispatch(setUser(user));
+    dispatch(clearError());
   } catch (err: any) {
     dispatch(setError(err.response?.data?.detail || 'Signup failed'));
+    throw err
   }
 };
 

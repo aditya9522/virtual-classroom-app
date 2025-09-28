@@ -1,9 +1,8 @@
-// src/services/api.ts
 import axios from 'axios';
-import type { UserCreate, UserUpdate , LoginRequest, Token, UserResponse, ClassCreate, ClassResponse, EnrollmentResponse, MessageCreate, MessageResponse } from '../types/api';
+import type { UserCreate, UserUpdate , LoginRequest, Token, UserResponse, ClassCreate, ClassResponse, EnrollmentResponse, MessageCreate, MessageResponse, DeleteItemResponse } from '../types/api';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000', 
+  baseURL: import.meta.env.VITE_BACKEND_URL, 
 });
 
 api.interceptors.request.use((config) => {
@@ -18,15 +17,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Redirect to login
       window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
-export const signup = async (data: UserCreate): Promise<Token> => {
-  const response = await api.post<Token>('/auth/signup', data);
+export const signup = async (data: UserCreate): Promise<UserResponse> => {
+  const response = await api.post<UserResponse>('/auth/signup', data);
   return response.data;
 };
 
@@ -50,8 +48,18 @@ export const getMe = async (): Promise<UserResponse> => {
   return response.data;
 };
 
+export const deleteUser = async (userId: number): Promise<DeleteItemResponse> => {
+  const response = await api.delete<DeleteItemResponse>(`/auth/users/${userId}`);
+  return response.data;
+}
+
 export const createClass = async (data: ClassCreate): Promise<ClassResponse> => {
   const response = await api.post<ClassResponse>('/classes', data);
+  return response.data;
+};
+
+export const deleteClass = async (classId: number): Promise<DeleteItemResponse> => {
+  const response = await api.delete<DeleteItemResponse>(`/classes/${classId}`);
   return response.data;
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 const Home: React.FC = () => {
   const { user, loading } = useAuth();
@@ -17,7 +17,7 @@ const Home: React.FC = () => {
   }
 
   if (user) {
-    return null;
+    return <Navigate to={`/${user.role}`} replace />;
   }
 
   return (

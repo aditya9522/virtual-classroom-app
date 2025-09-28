@@ -28,7 +28,7 @@ export const fetchClassByIdThunk = (classId: number) => async (dispatch: AppDisp
   dispatch(setClassesLoading());
   try {
     const data = await getClassById(classId);
-    dispatch(setClasses([data])); // Or handle single class state
+    dispatch(setClasses([data]));
   } catch (err: any) {
     dispatch(setClassesError(err.message));
   }
