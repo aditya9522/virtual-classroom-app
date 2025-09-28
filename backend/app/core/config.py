@@ -14,10 +14,14 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "supersecretkey"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
-    ALLOWED_ORIGINS: List[str] = []
+    ALLOWED_ORIGINS: str = ""
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
 settings = Settings()
+
+ALLOWED_ORIGINS_LIST: List[str] = [
+    origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",") if origin
+]
