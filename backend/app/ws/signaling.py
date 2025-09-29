@@ -13,7 +13,7 @@ async def handle_websocket(websocket: WebSocket, class_id: str, user):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    await manager.connect(class_id, websocket)
+    await manager.connect(class_id, websocket, user_id)
     await manager.broadcast(class_id, {'type': 'presence', 'payload': {'event': 'join', 'userId': user_id}}, exclude=websocket)
 
     try:
@@ -24,18 +24,19 @@ async def handle_websocket(websocket: WebSocket, class_id: str, user):
             payload = raw.get('payload', {})
 
             if msg_type == 'chat':
-                content = (payload or {}).get('content', '').strip()
+                content = payload.get('content', '').strip()
                 if content:
                     async for session in get_session():
-                        await save_message(session, class_id=int(class_id), sender_id=user_id, content=content)
+                        message = await save_message(session, int(class_id), user_id, content)
+                        await manager.broadcast(class_id, {'type': 'chat', 'payload': message.dict()})
                         break
-                await manager.broadcast(class_id, {'type': 'chat', 'payload': {'content': content, 'senderId': user_id}}, exclude=None)
                 continue
 
-            if msg_type in {'webrtc-offer', 'webrtc-answer', 'ice-candidate', 'join'}:
-                await manager.broadcast(class_id, {'type': msg_type, 'payload': {**(payload or {}), 'senderId': user_id}}, exclude=websocket)
+            if msg_type in {'webrtc-offer', 'webrtc-answer', 'webrtc-candidate', 'join'}:
+                await manager.broadcast(class_id, {'type': msg_type, 'payload': {**payload, 'senderId': user_id}}, exclude=websocket)
                 continue
     except Exception:
+        pass
+    finally:
         manager.disconnect(class_id, websocket)
         await manager.broadcast(class_id, {'type': 'presence', 'payload': {'event': 'leave', 'userId': user_id}})
-

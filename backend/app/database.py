@@ -6,7 +6,12 @@ from app.core.config import settings
 
 DATABASE_URL = settings.DATABASE_URL
 
-engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=False, future=True)
+engine: AsyncEngine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    future=True,
+    connect_args={"statement_cache_size": 0}
+)
 
 async def init_db() -> None:
     async with engine.begin() as conn:

@@ -21,50 +21,46 @@ const ClassDetail = () => {
   const classData = useSelector((state: RootState) => state.classes.classes[0]);
   const enrollments = useSelector((state: RootState) => state.enrollments.enrollments);
   const dispatch = useDispatch();
-
   const [messages, setMessages] = useState<MessageResponse[]>([]);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
   const [isEnrolled, setIsEnrolled] = useState(false);
 
+  const ws = useWebSocket(id, (data) => {
+    if (data.type === 'offer' || data.type === 'answer' || data.type === 'candidate') {
+      peer?.signal(data.signal);
+    } else if (data.type === 'new-message') {
+      setMessages((prev) => [...prev, data.message]);
+    }
+  });
+
   const onRemoteStream = useCallback((stream: MediaStream) => {
-    setRemoteStreams((prev) => {
-      if (prev.find((s) => s.id === stream.id)) return prev;
-      return [...prev, stream];
-    });
+    setRemoteStreams((prev) => [...prev, stream]);
   }, []);
+
+  const onSignal = useCallback((signal: any) => {
+    ws?.send(JSON.stringify({ type: 'signal', signal }));
+  }, [ws]);
 
   const { peer } = useWebRTC(
     localStream,
     user?.role === 'teacher',
     onRemoteStream,
-    (signal) => ws?.send(JSON.stringify({ type: 'signal', signal }))
+    onSignal
   );
-
-  const onWsMessage = useCallback(
-    (data: any) => {
-      if (data.type === 'offer' || data.type === 'answer') {
-        peer?.signal(data.signal);
-      } else if (data.type === 'new-message') {
-        setMessages((prev) => [...prev, data.message]);
-      }
-    },
-    [peer]
-  );
-
-  const ws = useWebSocket(id, onWsMessage);
 
   useEffect(() => {
     dispatch(fetchClassByIdThunk(id) as any);
     dispatch(fetchEnrollmentsThunk(id) as any);
-    getMessages(id).then(setMessages);
-  }, [id, dispatch]);
 
-  useEffect(() => {
-    if (user) {
-      setIsEnrolled(enrollments.some((e) => e.student_id === user.id));
-    }
-  }, [enrollments, user]);
+    const fetchMsgs = async () => {
+      const msgs = await getMessages(id);
+      setMessages(msgs);
+    };
+    fetchMsgs();
+
+    setIsEnrolled(enrollments.some((e) => e.student_id === user?.id));
+  }, [id, dispatch, user, enrollments]);
 
   const startVideo = async () => {
     try {
@@ -72,7 +68,7 @@ const ClassDetail = () => {
       setLocalStream(stream);
       ws?.send(JSON.stringify({ type: 'start' }));
     } catch (err) {
-      toast.error('Failed to start video');
+      toast.error('Failed to start video.');
     }
   };
 
@@ -82,7 +78,7 @@ const ClassDetail = () => {
       setLocalStream(stream);
       ws?.send(JSON.stringify({ type: 'join' }));
     } catch (err) {
-      toast.error('Failed to join video');
+      toast.error('Failed to join video.');
     }
   };
 
@@ -123,7 +119,7 @@ const ClassDetail = () => {
           )}
           <VideoPlayer stream={localStream} muted />
           {remoteStreams.map((stream, index) => (
-            <VideoPlayer key={stream.id || index} stream={stream} />
+            <VideoPlayer key={index} stream={stream} />
           ))}
         </Box>
 
@@ -156,7 +152,7 @@ const ClassDetail = () => {
               <Box key={e.id} sx={{ border: '1px solid #ccc', p: 1, borderRadius: 1 }}>
                 Student {e.student_id} - Enrolled at {e.enrolled_at}
               </Box>
-            ))}
+            ))} 
           </Stack>
         </Box>
       )}
