@@ -10,7 +10,7 @@ engine: AsyncEngine = create_async_engine(
     DATABASE_URL,
     echo=False,
     future=True,
-    connect_args={"statement_cache_size": 0},
+    connect_args={"ssl": True},
     pool_size=5,
     max_overflow=10,
     pool_recycle=300,
